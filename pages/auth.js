@@ -8,41 +8,16 @@ export default function AuthPage() {
     const [email, setEmail] = useState('');   
     const [password, setPassword] = useState('');
 
-  useEffect(() => {
-    // Listen for the custom event to be dispatched by the onSuccess function
-    const handleGoogleSignIn = (event) => {
-      handleGoogleSuccess(event.detail);
-    };
+  
 
-    window.addEventListener('google-sign-in', handleGoogleSignIn);
-
-    return () => {
-      window.removeEventListener('google-sign-in', handleGoogleSignIn);
-    };
-  }, []);
-
-  // This function will be called when the Google sign-in is successful
-  const handleGoogleSuccess = (googleUser) => {
-    const profile = googleUser.getBasicProfile();
-    console.log("Google User ID: " + profile.getId());
+   // This function will be called when the Google sign-in is successful
+   const handleCredentialResponse = (response) => {
+    console.log("Encoded JWT ID token: " + response.credential);
     // Send this token to your server for verification
-    const id_token = googleUser.getAuthResponse().id_token;
-    console.log("ID Token: " + id_token);
     // ... (send token to your server, set user session, etc.)
   };
 
-  useEffect(() => {
-    // Listen for the custom event to be dispatched by the onSuccess function
-    const handleGoogleSignIn = (event) => {
-      handleGoogleSuccess(event.detail);
-    };
-
-    window.addEventListener('google-sign-in', handleGoogleSignIn);
-
-    return () => {
-      window.removeEventListener('google-sign-in', handleGoogleSignIn);
-    };
-  }, []);
+ 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -61,34 +36,27 @@ export default function AuthPage() {
   return (
     <>
       <Head>
-        
+        <title>Auth Page</title>
       </Head>
 
       <Script
-        src="https://apis.google.com/js/platform.js"
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
         onLoad={() => {
-          window.gapi.load('auth2', function() {
-            window.gapi.auth2.init({
-              client_id: 'YOUR_CLIENT_ID',
-              // Add other initialization parameters if needed
-            }).then(() => {
-              window.gapi.signin2.render('g-signin2', {
-                'scope': 'profile email',
-                'width': 240,
-                'height': 50,
-                'longtitle': true,
-                'theme': 'dark',
-                'onsuccess': onSuccess,
-                'onfailure': onFailure
-              });
-            });
+          window.google.accounts.id.initialize({
+            client_id: '141127413397-bclfrqc9tk5gk65058dooumki75hjnme.apps.googleusercontent.com', 
+            callback: handleCredentialResponse
           });
+          window.google.accounts.id.renderButton(
+            document.getElementById('g-signin2'), // where to render the button
+            { theme: 'outline', size: 'large' }  // button customization
+          );
         }}
       />
 
-<div className="min-h-screen flex flex-col items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center">
         <form onSubmit={handleSubmit} className="w-full max-w-xs">
-          <input
+        <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -124,13 +92,4 @@ export default function AuthPage() {
       </div>
     </>
   );
-}
-
-// Outside your component
-function onSuccess(googleUser) {
-  window.dispatchEvent(new CustomEvent('google-sign-in', { detail: googleUser }));
-}
-
-function onFailure(error) {
-  console.error('Google Sign In Failure:', error);
 }
