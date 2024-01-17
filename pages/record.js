@@ -4,10 +4,25 @@ export default function Record() {
   const [exercise, setExercise] = useState('');
   const [count, setCount] = useState(0);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Here you would handle sending the data to your storage solution
-    console.log(`Exercise: ${exercise}, Count: ${count}`);
+    try {
+      const response = await fetch('/api/record-pushup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ exercise, count }),
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log('Record saved:', data);
+      // Reset form or give user feedback
+    } catch (error) {
+      console.error('Error recording pushup:', error);
+    }
   };
 
   return (
@@ -27,6 +42,6 @@ export default function Record() {
         onChange={(e) => setCount(e.target.value)}
       />
       <button type="submit">Record Exercise</button>
-    </form>
-  );
-}
+       </form>
+     );
+   }
