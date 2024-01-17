@@ -1,8 +1,8 @@
-const bcrypt = require('bcrypt');
-const pool = require('../db');
-const User = require('../models/User');
+import bcrypt from'bcrypt';
+import pool from'../db';
+import User from '../models/users';
 
-export const createUser = async ({ name, email, password }) => {
+ const createUser = async ({ name, email, password }) => {
   // Check if the user already exists
   const existingUser = await User.findByEmail(email); 
   if (existingUser) {
@@ -21,5 +21,7 @@ export const createUser = async ({ name, email, password }) => {
     'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
     [name, email, passwordHash]
   );
-  return rows[0]; // Returns the newly created user record
+  return rows[0]; 
 };
+
+export  { createUser };

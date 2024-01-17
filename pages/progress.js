@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+const { useState, useEffect } = require ('react');
 
 export default function Progress() {
   // This state would eventually be from DB 

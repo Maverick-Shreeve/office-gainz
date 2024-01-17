@@ -33,17 +33,6 @@ export default function Home() {
           </button>
         </Link>
       </div>
-
-      {/* Optionally, if you want to display a logo or an image */}
-      <div className="mt-12">
-        <Image
-          src="/your-logo.png" // Replace with your logo's path
-          alt="Your Logo"
-          width={150}
-          height={150}
-          priority
-        />
-      </div>
     </main>
   )
 }
