@@ -13,7 +13,7 @@ const generateToken = (user) => {
       name: user.name
     },
     process.env.JWT_SECRET, 
-    { expiresIn: '1h' } 
+    { expiresIn: '360d' } 
   );
 };
 export default async function handler(req, res) {
