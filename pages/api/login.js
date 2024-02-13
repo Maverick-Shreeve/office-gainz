@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { User } from '../../models/User'; 
 import jwt from 'jsonwebtoken';
+import cookie from 'cookie';
 
 
 
@@ -35,9 +36,18 @@ export default async function handler(req, res) {
     }
 
     // Generate a session token 
-    const token = generateToken(user); 
+    const token = generateToken(user);
 
-    res.status(200).json({ token, user });
+    // put token in HTTP Cookie
+    res.setHeader('Set-Cookie', cookie.serialize('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'development', // Use secure in production
+      maxAge: 60 * 60 * 24 * 360, // 360 days
+      sameSite: 'strict', 
+      path: '/',
+    }));
+
+    res.status(200).json({ user });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
