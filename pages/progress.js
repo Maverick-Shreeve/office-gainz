@@ -1,7 +1,7 @@
 const { useState, useEffect } = require ('react');
 
 export default function Progress() {
-  // This state would eventually be from DB 
+  // this state would eventually be from DB
   const [exercises, setExercises] = useState([]);
 
   useEffect(() => {
@@ -9,9 +9,9 @@ export default function Progress() {
     const fetchedExercises = [
       { id: 1, name: 'Pushups', count: 20, date: '2023-01-01' },
       { id: 2, name: 'Squats', count: 15, date: '2023-01-02' },
-     
+
     ];
-    
+
     setExercises(fetchedExercises);
   }, []);
 

@@ -1,27 +1,27 @@
-import bcrypt from'bcrypt';
-import pool from'../db';
-import User from '../models/users';
+import bcrypt from "bcryptjs";
+import pool from "../db";
+import User from "../models/users";
 
- const createUser = async ({ name, email, password }) => {
+const createUser = async ({ name, email, password }) => {
   // Check if the user already exists
-  const existingUser = await User.findByEmail(email); 
+  const existingUser = await User.findByEmail(email);
   if (existingUser) {
-    throw new Error('User already exists with this email');
+    throw new Error("User already exists with this email");
   }
 
   let passwordHash = null;
   if (password) {
-    // Hash the password 
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     passwordHash = await bcrypt.hash(password, salt);
   }
 
   // Insert the new user into the db
   const { rows } = await pool.query(
-    'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *',
+    "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
     [name, email, passwordHash]
   );
-  return rows[0]; 
+  return rows[0];
 };
 
-export  { createUser };
+export { createUser };
