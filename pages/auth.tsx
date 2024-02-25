@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useForm } from "react-hook-form";
+import React from 'react';
 
 // Optionally, define the form inputs' structure for TypeScript
 type FormData = {

@@ -1,10 +1,26 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import React from "react";
+import { useContext } from 'react';
+import { ThemeContext } from '../ThemeContext';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+  const themeContext = useContext(ThemeContext);
+
+  if (!themeContext) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  const { theme, toggleTheme } = themeContext;
+
+  useEffect(() => {
+    //  apply the current theme on component mount
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
 
   useEffect(() => {
     const fetchLoginStatus = async () => {
@@ -38,7 +54,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-gray-200 px-2 sm:px-4 py-2.5 rounded dark:bg-gray-900">
+    <nav className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 px-2 sm:px-4 py-2.5 rounded">
+
       <div className="container flex flex-wrap justify-between items-center mx-auto">
         <Link href="/" passHref>
           <div className="flex items-center cursor-pointer">
@@ -91,6 +108,23 @@ const Navbar = () => {
                 </span>
               </Link>
             </li>
+            <div className="relative group cursor-pointer ml-auto" onClick={toggleTheme}>
+              {theme === 'dark' ? (
+                <>
+                  <LightModeIcon className="text-yellow-500" />
+                  <span className="absolute -top-1 -translate-y-full left-1/2 transform -translate-x-1/2 w-auto px-1 py-0.5 text-[9px] leading-tight font-medium text-white bg-black rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+                    Switch to Light
+                  </span>
+                </>
+              ) : (
+                <>
+                  <DarkModeIcon className="text-gray-800 dark:text-gray-200" />
+                  <span className="absolute -top-1 -translate-y-full left-1/2 transform -translate-x-1/2 w-auto px-1 py-0.5 text-[9px] leading-tight font-medium text-white bg-black rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+                    Switch to superior dark mode
+                  </span>
+                </>
+              )}
+            </div>
           </ul>
         </div>
       </div>

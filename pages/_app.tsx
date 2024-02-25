@@ -4,13 +4,16 @@ import { store } from '../store/store';
 import '../app/globals.css';
 import { AppProps } from 'next/app';
 import Layout from '../components/Layout'; 
+import { ThemeProvider } from '../ThemeContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <ThemeProvider> 
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ThemeProvider>
     </Provider>
   );
 }
