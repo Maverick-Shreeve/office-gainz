@@ -1,21 +1,25 @@
 import React from 'react';
-import { Provider } from 'react-redux';
+import { Provider as ReduxProvider } from 'react-redux'; 
 import { store } from '../store/store';
 import '../app/globals.css';
 import { AppProps } from 'next/app';
-import Layout from '../components/Layout'; 
-import { ThemeProvider } from '../ThemeContext';
+import Layout from '../components/Layout';
+import { ThemeProvider } from '../context/ThemeContext';
+import { AuthProvider } from '../context/AuthContext';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Provider store={store}>
-      <ThemeProvider> 
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+    <ReduxProvider store={store}>
+      <ThemeProvider>
+        <AuthProvider> 
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </AuthProvider>
       </ThemeProvider>
-    </Provider>
+    </ReduxProvider>
   );
 }
 
 export default MyApp;
+

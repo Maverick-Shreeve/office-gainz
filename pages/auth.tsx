@@ -3,8 +3,8 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import { useForm } from "react-hook-form";
 import React from 'react';
+import { useAuth } from '../context/AuthContext';
 
-// Optionally, define the form inputs' structure for TypeScript
 type FormData = {
   email: string;
   password: string;
@@ -19,6 +19,7 @@ export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
+  const { setIsLoggedIn } = useAuth();
 
   const onSubmit = async (data: FormData) => {
     const endpoint = isLogin ? "/api/login" : "/api/register";
@@ -33,8 +34,7 @@ export default function AuthPage() {
       if (response.ok) {
         const result: { user: any; token: string } = await response.json();
         console.log("Response:", result);
-        localStorage.setItem("user", JSON.stringify(result.user));
-        localStorage.setItem("token", result.token);
+        setIsLoggedIn(true);
         router.push("/");
       } else {
         const errorData = await response.json();

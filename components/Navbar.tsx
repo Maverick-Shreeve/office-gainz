@@ -3,14 +3,15 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import { useContext } from 'react';
-import { ThemeContext } from '../ThemeContext';
+import { ThemeContext } from '../context/ThemeContext';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   const themeContext = useContext(ThemeContext);
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   if (!themeContext) {
     throw new Error('useTheme must be used within a ThemeProvider');
@@ -45,8 +46,8 @@ const Navbar = () => {
         credentials: "include",
       });
       if (response.ok) {
-        setIsLoggedIn(false);
-        router.push("/"); // Redirect to home page after logout
+        setIsLoggedIn(false); // update the global isLoggedIn state
+        router.push("/"); // redirect to home
       }
     } catch (error) {
       console.error("Logout failed:", error);
@@ -71,17 +72,15 @@ const Navbar = () => {
         </Link>
         <div className="flex md:order-2">
           {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 mr-3 md:mr-0"
-            >
+            <button onClick={handleLogout} className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 mr-3 md:mr-0">
               Logout
             </button>
           ) : (
+  
             <Link href="/auth" passHref>
-              <div className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3 md:mr-0 cursor-pointer">
+              <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-3 md:mr-0">
                 Login / Create Account
-              </div>
+              </button>
             </Link>
           )}
         </div>
@@ -98,13 +97,6 @@ const Navbar = () => {
               <Link href="/about" passHref>
                 <span className="block py-2 pr-4 pl-3 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent cursor-pointer">
                   About
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" passHref>
-                <span className="block py-2 pr-4 pl-3 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent cursor-pointer">
-                  Contact
                 </span>
               </Link>
             </li>
