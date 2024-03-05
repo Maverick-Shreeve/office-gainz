@@ -24,6 +24,8 @@ export default function AuthPage() {
   const onSubmit = async (data: FormData) => {
     const endpoint = isLogin ? "/api/login" : "/api/register";
 
+    console.log(`Attempting to ${isLogin ? "login" : "register"} with data:`, data);
+
     try {
       const response = await fetch(endpoint, {
         method: "POST",
@@ -38,8 +40,8 @@ export default function AuthPage() {
         router.push("/");
       } else {
         const errorData = await response.json();
-        console.error("Error:", errorData.message);
-        setErrorMessage(errorData.message);
+        console.error("Error response:", errorData);
+        setErrorMessage(errorData.message || "An error occurred. Please try again.");
       }
     } catch (error) {
       console.error("Request failed:", error);

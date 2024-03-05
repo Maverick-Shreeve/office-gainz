@@ -46,7 +46,7 @@ const Navbar = () => {
         credentials: "include",
       });
       if (response.ok) {
-        setIsLoggedIn(false); // update the global isLoggedIn state
+        setIsLoggedIn(false); 
         router.push("/"); // redirect to home
       }
     } catch (error) {
