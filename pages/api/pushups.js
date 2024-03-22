@@ -1,5 +1,5 @@
 import express from 'express';
-import pool from '../../db'; 
+import supabase from '../../utils/supabaseClient';
 
 const router = express.Router();
 
@@ -7,11 +7,13 @@ const router = express.Router();
 router.post('/record', async (req, res) => {
   const { count } = req.body;
   try {
-    const result = await pool.query(
-      'INSERT INTO exercises (exercise_type, count) VALUES ($1, $2) RETURNING *',
-      ['pushup', count]
-    );
-    res.status(201).json(result.rows[0]);
+    const { data, error } = await supabase
+      .from('exercises')
+      .insert([{ exercise_type: 'pushup', count }]);
+
+    if (error) throw error;
+
+    res.status(201).json(data[0]);
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
@@ -20,8 +22,14 @@ router.post('/record', async (req, res) => {
 // fetch pushups
 router.get('/history', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM exercises WHERE exercise_type = $1', ['pushup']);
-    res.status(200).json(result.rows);
+    const { data, error } = await supabase
+      .from('exercises')
+      .select('*')
+      .eq('exercise_type', 'pushup'); //where exercise_type ='pushup'
+
+    if (error) throw error;
+
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
