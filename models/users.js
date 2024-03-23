@@ -1,34 +1,51 @@
-import pool from '../db'; 
+import supabase from '../utils/supabaseClient';
 
 class User {
-    // Constructor to create a new User object
+    // constructor to create a new User object
     constructor(user) {
         this.id = user.id;
         this.name = user.name;
         this.email = user.email;
-        this.password = user.password;
+        this.password = user.password; 
     }
 
-    // Method to find a user by email
     static async findByEmail(email) {
-        const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (rows.length === 0) {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .single(); // gets a single record
+
+        if (error) {
+            console.error('Error fetching user by email:', error);
             return null;
         }
-        return new User(rows[0]);
+
+        if (data) {
+            return new User(data);
+        } else {
+            return null;
+        }
     }
 
-    // Method to find a user by ID
     static async findById(id) {
-        const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
-        if (rows.length === 0) {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', id)
+            .single(); 
+
+        if (error) {
+            console.error('Error fetching user by ID:', error);
             return null;
         }
-        return new User(rows[0]);
+
+        if (data) {
+            return new User(data);
+        } else {
+            return null;
+        }
     }
 }
 
 export default User;
-
-
-
