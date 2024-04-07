@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       if (error) {
         throw error;
       }
-    N
+    
 
       // User successfully created
       return res.status(201).json({ user }); // Returning 'name' for confirmation

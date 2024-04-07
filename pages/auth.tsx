@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useForm } from "react-hook-form";
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
+import { supabase } from '../utils/supabaseClient'; 
 
 type FormData = {
   email: string;
@@ -11,43 +11,52 @@ type FormData = {
 };
 
 export default function AuthPage() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>(); // use the Formdata type for useform hook
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [isLogin, setIsLogin] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
-  const { setIsLoggedIn } = useAuth();
 
   const onSubmit = async (data: FormData) => {
-    const endpoint = isLogin ? "/api/login" : "/api/register";
-
-    console.log(`Attempting to ${isLogin ? "login" : "register"} with data:`, data);
-
+    const action = isLogin ? "signIn" : "signUp";
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        const result: { user: any; token: string } = await response.json();
-        console.log("Response:", result);
-        setIsLoggedIn(true);
-        router.push("/");
+      let result;
+      if (action === "signIn") {
+        result = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
       } else {
-        const errorData = await response.json();
-        console.error("Error response:", errorData);
-        setErrorMessage(errorData.message || "An error occurred. Please try again.");
+        result = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+        });
+      }
+
+      // Destructure `data` from `result` and then `user` from `data`
+      const { data: { user }, error } = result;
+
+      if (error) {
+        throw error;
+      }
+
+      if (user) {
+        console.log("Success:", user);
+        router.push("/"); 
+      } else {
+        throw new Error('An unexpected error occurred. Please try again.');
       }
     } catch (error) {
-      console.error("Request failed:", error);
-      setErrorMessage("Network error or server is not responding");
+  
+      if (error instanceof Error) {
+        console.error("Auth error:", error.message);
+        setErrorMessage(error.message);
+      } else {
+        console.error("An unknown error occurred");
+        setErrorMessage("An unknown error occurred");
+      }
     }
   };
+
 
   return (
     <>

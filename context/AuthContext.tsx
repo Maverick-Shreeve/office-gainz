@@ -1,51 +1,48 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
+import {supabase} from '../utils/supabaseClient'; 
 interface AuthContextType {
+  user: any; // Adjust the type according to your user model or set to 'null' for no user
   isLoggedIn: boolean;
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-// Initialize the context with a default value that matches the AuthContextType
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Type the children prop using ReactNode
-export const AuthProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<any>(null); // Adjust 'any' to your user model as needed
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchLoginStatus = async () => {
-      try {
-        const response = await fetch('/api/auth/status', {
-          method: 'GET',
-          credentials: 'include', // Necessary to include cookies in the request
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setIsLoggedIn(data.isLoggedIn);
-        } else {
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        console.error('Failed to fetch login status:', error);
-        setIsLoggedIn(false);
+    // Listen for changes on authentication state
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const currentUser = session?.user;
+      setUser(currentUser);
+      setIsLoggedIn(!!currentUser);
+    });
+
+    // Check for an existing session and update state accordingly
+    
+    const session = supabase.auth.session();
+    setUser(session?.user || null);
+    setIsLoggedIn(!!session?.user);
+
+    // Perform cleanup
+    return () => {
+      if (authListener) {
+        authListener.unsubscribe();
       }
     };
-  
-    fetchLoginStatus();
   }, []);
-  
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
+    <AuthContext.Provider value={{ user, isLoggedIn }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === null) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
