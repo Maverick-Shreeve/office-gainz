@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import React from 'react';
 import { useRouter } from "next/router";
-import React from "react";
+import Link from "next/link";
 import { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
-import { useAuth } from '../context/AuthContext';
+import { supabase } from '../utils/supabaseClient'; // Ensure this is correctly imported
 
 const Navbar = () => {
   const router = useRouter();
@@ -19,38 +20,28 @@ const Navbar = () => {
   const { theme, toggleTheme } = themeContext;
 
   useEffect(() => {
-    //  apply the current theme on component mount
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
   useEffect(() => {
-    const fetchLoginStatus = async () => {
-      try {
-        const response = await fetch("/api/auth/status", {
-          method: "GET",
-          credentials: "include",
-        });
-        const data = await response.json();
-        setIsLoggedIn(data.isLoggedIn);
-      } catch (error) {
-        console.error("Failed to fetch login status:", error);
-      }
-    };
-    fetchLoginStatus();
-  }, []);
+    // listener for auuth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    // cleanup  listener when the component unmounts
+    return () => {
+    authListener.subscription.unsubscribe();
+  };
+}, [setIsLoggedIn]);
 
   const handleLogout = async () => {
-    try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      if (response.ok) {
-        setIsLoggedIn(false); 
-        router.push("/"); // redirect to home
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Logout failed:", error.message);
+    } else {
+      setIsLoggedIn(false);
+      router.push("/"); 
     }
   };
 

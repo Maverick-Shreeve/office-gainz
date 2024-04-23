@@ -1,20 +1,23 @@
-import React, { ReactNode, createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// Define the context state
 interface ThemeContextType {
   theme: string;
   toggleTheme: () => void;
 }
 
-// export context
-export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+// Provide a default value that matches the structure of ThemeContextType
+const defaultContextValue: ThemeContextType = {
+  theme: 'light', // default theme
+  toggleTheme: () => {}, // default function
+};
 
-//  provider component
-export const ThemeProvider: React.FC<{children: ReactNode}> = ({ children }) => {
-  const [theme, setTheme] = useState<string>('light');
+export const ThemeContext = createContext<ThemeContextType>(defaultContextValue);
+
+export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [theme, setTheme] = useState('light');
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
   return (
@@ -24,11 +27,5 @@ export const ThemeProvider: React.FC<{children: ReactNode}> = ({ children }) => 
   );
 };
 
-// hook for child components to get the theme and re-render when it changes
-export const useTheme = (): ThemeContextType => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
-};
+// Custom hook to use the theme context
+export const useTheme = () => useContext(ThemeContext);
