@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { useRouter } from "next/router";
-import Head from "next/head";
-import { useForm } from "react-hook-form";
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import Head from 'next/head';
+import { useForm } from 'react-hook-form';
 import { supabase } from '../utils/supabaseClient'; 
 
 type FormData = {
@@ -17,46 +16,37 @@ export default function AuthPage() {
   const router = useRouter();
 
   const onSubmit = async (data: FormData) => {
-    const action = isLogin ? "signIn" : "signUp";
+    console.log("Form submitted:", data);
+    // Add your logic to handle login or registration here
+  };
+
+  const handleSignInWithGoogle = async () => {
     try {
-      let result;
-      if (action === "signIn") {
-        result = await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        });
-      } else {
-        result = await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-        });
-      }
-
-      // Destructure `data` from `result` and then `user` from `data`
-      const { data: { user }, error } = result;
-
-      if (error) {
-        throw error;
-      }
-
-      if (user) {
-        console.log("Success:", user);
-        router.push("/"); 
-      } else {
-        throw new Error('An unexpected error occurred. Please try again.');
-      }
-    } catch (error) {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          queryParams: {
+            access_type: 'offline',  // Requests a refresh token
+            prompt: 'consent'        // Forces the consent screen to show
+          }
+        }
+      });
   
+      if (error) {
+        const typedError = error as { message?: string, error_description?: string };
+        console.error("Google auth error:", typedError.message);
+        setErrorMessage(typedError.message || "An unknown error occurred");
+      }
+    } catch (error: any) {
+      console.error("Unexpected error during Google auth:", error);
       if (error instanceof Error) {
-        console.error("Auth error:", error.message);
         setErrorMessage(error.message);
       } else {
-        console.error("An unknown error occurred");
-        setErrorMessage("An unknown error occurred");
+        const typedError = error as { error_description?: string, message?: string };
+        setErrorMessage(typedError.error_description || typedError.message || "An unknown error occurred");
       }
     }
   };
-
 
   return (
     <>
@@ -64,29 +54,11 @@ export default function AuthPage() {
         <title>{isLogin ? "Login" : "Sign Up"} Page</title>
       </Head>
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold mb-6">
-          {isLogin ? "Login" : "Sign Up"}
-        </h1>
+        <h1 className="text-4xl font-bold mb-6">{isLogin ? "Login" : "Sign Up"}</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xs">
-          <input
-            type="email"
-            {...register("email", { required: true })}
-            placeholder="Email"
-            className="w-full p-2 border border-gray-300 rounded mb-4"
-          />
-          {errors.email && <p className="text-red-500">Email is required.</p>}
-          <input
-            type="password"
-            {...register("password", { required: true })}
-            placeholder="Password"
-            className="w-full p-2 border border-gray-300 rounded mb-4"
-          />
-          {errors.password && <p className="text-red-500">Password is required.</p>}
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded"
-          >
-            {isLogin ? "Login" : "Sign Up"}
+          
+          <button onClick={handleSignInWithGoogle} className="w-full bg-red-500 text-white p-2 mt-4 rounded">
+            Sign in with Google
           </button>
           <button
             type="button"

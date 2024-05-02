@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';                 
 import LightModeIcon from '@mui/icons-material/LightMode';
-import { supabase } from '../utils/supabaseClient'; // Ensure this is correctly imported
+import { supabase } from '../utils/supabaseClient'; 
 
 const Navbar = () => {
   const router = useRouter();
@@ -29,21 +29,28 @@ const Navbar = () => {
       setIsLoggedIn(!!session?.user);
     });
 
+    
     // cleanup  listener when the component unmounts
     return () => {
     authListener.subscription.unsubscribe();
   };
 }, [setIsLoggedIn]);
 
-  const handleLogout = async () => {
+const handleLogout = async () => {
+  try {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error("Logout failed:", error.message);
-    } else {
-      setIsLoggedIn(false);
-      router.push("/"); 
+      throw error;
     }
-  };
+
+    console.log("Logged out successfully.");
+    setIsLoggedIn(false);
+    router.push("/");  
+  } catch (error) {
+    console.error("Logout failed:", "An unknown error occurred");
+  }
+};
+
 
   return (
     <nav className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 px-2 sm:px-4 py-2.5 rounded">
