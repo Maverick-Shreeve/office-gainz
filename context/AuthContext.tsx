@@ -54,7 +54,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   fetchUser();
 
   const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-    // Optionally refresh user details on auth state changes
     await fetchUser();
   });
 
