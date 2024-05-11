@@ -17,7 +17,7 @@ export default function AuthPage() {
 
   const onSubmit = async (data: FormData) => {
     console.log("Form submitted:", data);
-    // Add your logic to handle login or registration here
+  
   };
 
   const handleSignInWithGoogle = async () => {
@@ -50,23 +50,14 @@ export default function AuthPage() {
 
   return (
     <>
-      <Head>
-        <title>{isLogin ? "Login" : "Sign Up"} Page</title>
-      </Head>
+
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold mb-6">{isLogin ? "Login" : "Sign Up"}</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xs">
-          
-          <button onClick={handleSignInWithGoogle} className="w-full bg-red-500 text-white p-2 mt-4 rounded">
-            Sign in with Google
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="w-full text-center mt-4 text-sm text-blue-500"
-          >
-            {isLogin ? "Need an account? Sign Up" : "Already have an account? Login"}
-          </button>
+        <h1 className="text-4xl font-bold mb-6"> Sign In</h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xs">   
+        <button onClick={handleSignInWithGoogle} className="w-full bg-red-500 text-white p-2 mt-4 rounded flex items-center justify-center">
+          Sign in with 
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google" className="w-6 h-6 ml-2" />
+        </button>
         </form>
         {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       </div>
