@@ -6,6 +6,8 @@ import { AppProps } from 'next/app';
 import Layout from '../components/Layout';
 import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

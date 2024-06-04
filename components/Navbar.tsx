@@ -58,13 +58,15 @@ const handleLogout = async () => {
       <div className="container flex flex-wrap justify-between items-center mx-auto">
         <Link href="/" passHref>
           <div className="flex items-center cursor-pointer">
-            <img
-              src="https://logos-download.com/wp-content/uploads/2016/03/Pepsi_Logo_1997.svg"
-              className="mr-3 h-6 sm:h-9"
-              alt="Logo"
-            />
-            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              OFFICE-GAINZ
+            <div className="overflow-hidden h-12 sm:h-14 w-12 sm:w-14 rounded-full">
+              <img
+                src="/office-gainzlogo.jpg"
+                alt="Office Gainz Logo"
+                className="object-cover object-center h-full w-full"
+              />
+            </div>
+            <span className="ml-3 self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+              Office Gainz
             </span>
           </div>
         </Link>
