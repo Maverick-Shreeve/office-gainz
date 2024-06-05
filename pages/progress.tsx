@@ -104,7 +104,7 @@ const Progress: React.FC = () => {
   const renderChart = () => {
     const labels = Object.keys(exerciseSummary);
     const dataReps = labels.map(type => exerciseSummary[type].total_reps);
-    const dataDuration = labels.map(type => type === 'wall-sit' ? (exerciseSummary[type].total_duration / 60).toFixed(2) : exerciseSummary[type].total_duration); //tofixed2 so it moves 2 decimal places over for minutes
+    const dataDuration = labels.map(type => type === 'wall-sit' ? (exerciseSummary[type].total_duration / 60) : 0); // Only show duration for wall-sits
     const dataSets = labels.map(type => exerciseSummary[type].sets);
 
     const data = {
@@ -135,7 +135,7 @@ const Progress: React.FC = () => {
             font: {
               weight: 'bold' as const
             },
-            formatter: (value: number) => value.toLocaleString(),
+            formatter: (value: number) => value ? value.toFixed(2) : '',
           }
         },
         {
@@ -262,8 +262,8 @@ const Progress: React.FC = () => {
       {Object.keys(exerciseSummary).length > 0 ? (
         <>
           {renderChart()}
-          {renderPushupTable()}
-          {renderWallSitTable()}
+          {Object.keys(exerciseSummary).includes('pushup') && renderPushupTable()}
+          {Object.keys(exerciseSummary).includes('wall-sit') && renderWallSitTable()}
         </>
       ) : (
         <p>No exercise records found.</p>
