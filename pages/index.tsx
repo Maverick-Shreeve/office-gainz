@@ -30,6 +30,14 @@ export default function Home() {
             </button>
           </a>
         </Link>
+
+        <Link href="/leaderboard" legacyBehavior>
+          <a className="transform transition duration-500 hover:scale-110">
+            <button className="rounded-full bg-blue-600 py-3 px-6 text-lg font-semibold text-white hover:bg-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
+              Leaderboard
+            </button>
+          </a>
+        </Link>
       </div>        
 
       <footer className="absolute bottom-4 text-center text-white">
