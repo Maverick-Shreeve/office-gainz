@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabaseClient';
@@ -13,6 +13,9 @@ import {
   Legend,
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ThemeContext } from '../context/ThemeContext';
 
 ChartJS.register(
   CategoryScale,
@@ -44,6 +47,12 @@ const Progress: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const router = useRouter();
+  const themeContext = useContext(ThemeContext);
+
+  if (!themeContext) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  const { theme } = themeContext;
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -238,26 +247,40 @@ const Progress: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="container mx-auto text-center mt-10">
+    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-dark-background text-white' : 'bg-white text-black'}`}>
+      <div className="flex flex-col items-center text-center">
         <h1 className="text-3xl font-bold mb-6">Exercise Progress</h1>
         <p>Once you've logged in, this page will show you your progress.</p>
-        <div className="outline mt-4 p-4 border-2 border-dashed border-gray-400">
-          <h2 className="text-2xl font-semibold">Outline:</h2>
-          <ul>
-            <li>Pushups: [Total Reps] reps, [Total Sets] sets</li>
-            <li>Wall sit: [Total Reps] reps, total duration: [Total Duration] seconds</li>
-          </ul>
+        <div className="flex justify-center mt-4">
+          <Image
+            src="/progressexample.jpeg"
+            alt="Progress Example"
+            width={600}
+            height={400}
+            className="rounded shadow-md"
+          />
+        </div>
+        <p className="mt-4">This is an example of how the page will look once you have logged in and recorded exercises.</p>
+        <div className="flex justify-center mt-6">
+          <Link href="/auth">
+            <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex items-center justify-center">
+              Sign In
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google" className="w-6 h-6 ml-2" />
+            </button>
+          </Link>
         </div>
       </div>
+    </div>
+
     );
   }
 
   if (error) {
-    return <div className="container mx-auto text-center mt-10">Error: {error}</div>;
+    return <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-dark-background text-white' : 'bg-white text-black'}`}>Error: {error}</div>;
   }
 
   return (
-    <div className="container mx-auto mt-10">
+    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-dark-background text-white' : 'bg-white text-black'}`}>
       <h1 className="text-3xl font-bold mb-6 text-center">Exercise Progress</h1>
       {Object.keys(exerciseSummary).length > 0 ? (
         <>

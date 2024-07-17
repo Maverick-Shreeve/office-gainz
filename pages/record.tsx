@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabaseClient';
+import { ThemeContext } from '../context/ThemeContext';
 
 interface Props {}
 
@@ -24,6 +25,12 @@ const Record: React.FC<Props> = () => {
   const [modalType, setModalType] = useState<string>('');
   const [modalRecords, setModalRecords] = useState<ExerciseRecord[]>([]);
   const router = useRouter();
+  const themeContext = useContext(ThemeContext);
+
+  if (!themeContext) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  const { theme } = themeContext;
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -183,112 +190,111 @@ const Record: React.FC<Props> = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-dark-background text-white' : ''}`}>
       {user ? (
-        <div className="flex flex-wrap">
-          <div className="w-full lg:w-1/2 px-2">
-            <h1 className="text-3xl font-bold mb-6 text-center">Record Your Exercises</h1>
-            <form onSubmit={handlePushupSubmit} className="mb-5 bg-white p-4 shadow-md rounded-md">
-              <label htmlFor="pushupCount" className="block mb-2 font-bold">Pushups Count:</label>
-              <input
-                type="number"
-                id="pushupCount"
-                value={pushupCount}
-                onChange={handlePushupChange}
-                className="w-full p-2 mb-3 border border-gray-300 rounded-md"
-                placeholder="Enter Pushups"
-                min="1"
-              />
-              <button type="submit" className="button w-full p-2 rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                Record Pushups
-              </button>
-            </form>
-            <form onSubmit={handleWallSitSubmit} className="mb-5 bg-white p-4 shadow-md rounded-md">
-              <label className="block mb-2 font-bold">Wall Sit Duration (seconds):</label>
-              <input
-                type="number"
-                value={wallSitDuration}
-                onChange={handleWallSitDurationChange}
-                className="w-full p-2 mb-3 border border-gray-300 rounded-md"
-                placeholder="Enter duration in seconds"
-                min="1"
-              />
-              <button type="submit" className="button w-full p-2 rounded-md text-white bg-blue-600 hover:bg-blue-700">
-                Record Wall Sit
-              </button>
-            </form>
-            {message && <div className="message bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mt-4">{message}</div>}
-          </div>
-          <div className="w-full lg:w-1/2 px-2">
-            <div className="mb-4 mt-6">
-              <h2 className="text-2xl font-bold mb-4 text-left">Last 5 Pushups</h2>
+        <div className="flex flex-col items-center">
+          <div className="w-full lg:w-3/4 xl:w-2/3">
+            <h1 className={`text-3xl font-bold mb-6 text-center ${theme === 'dark' ? 'text-white' : ''}`}>Record Your Exercises</h1>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <form onSubmit={handlePushupSubmit} className={`p-4 shadow-md rounded-md ${theme === 'dark' ? 'bg-dark-card text-white' : 'bg-white'}`}>
+                <label htmlFor="pushupCount" className="block mb-2 font-bold">Pushups Count:</label>
+                <input
+                  type="number"
+                  id="pushupCount"
+                  value={pushupCount}
+                  onChange={handlePushupChange}
+                  className={`w-full p-2 mb-3 border rounded-md ${theme === 'dark' ? 'bg-dark-card border-gray-600' : 'border-gray-300'}`}
+                  placeholder="Enter Pushups"
+                  min="1"
+                />
+                <button type="submit" className="button w-full p-2 rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                  Record Pushups
+                </button>
+              </form>
+              <form onSubmit={handleWallSitSubmit} className={`p-4 shadow-md rounded-md ${theme === 'dark' ? 'bg-dark-card text-white' : 'bg-white'}`}>
+                <label className="block mb-2 font-bold">Wall Sit Duration (seconds):</label>
+                <input
+                  type="number"
+                  value={wallSitDuration}
+                  onChange={handleWallSitDurationChange}
+                  className={`w-full p-2 mb-3 border rounded-md ${theme === 'dark' ? 'bg-dark-card border-gray-600' : 'border-gray-300'}`}
+                  placeholder="Enter duration in seconds"
+                  min="1"
+                />
+                <button type="submit" className="button w-full p-2 rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                  Record Wall Sit
+                </button>
+              </form>
             </div>
-
-            <table className="w-full bg-white shadow-md rounded-md text-xs table-auto border-collapse border border-gray-400" style={{ width: '70%', fontSize: '12px', padding: '4px' }}>
-              <thead>
-                <tr>
-                  <th className="p-1 border border-gray-400 text-center">Date</th>
-                  <th className="p-1 border border-gray-400 text-center">Count</th>
-                  <th className="p-1 border border-gray-400 text-center">Edit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lastPushups.map((record) => (
-                  <tr key={record.id}>
-                    <td className="p-1 border border-gray-400 text-center">{new Date(record.created_at).toLocaleDateString()}</td>
-                    <td className="p-1 border border-gray-400 text-center">{record.count}</td>
-                    <td className="p-1 border border-gray-400 text-center">
-                      <button onClick={() => handleEdit('pushup')} className="text-blue-600 hover:text-blue-800 p-1" style={{ padding: '2px', fontSize: '10px' }}>
-                        <i className="fa fa-edit" aria-hidden="true" style={{ fontSize: '10px' }}></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="mb-4 mt-6">
-              <h2 className="text-2xl font-bold mb-4 text-left">Last 5 Wall Sits</h2>
+            {message && <div className={`message ${theme === 'dark' ? 'bg-gray-800 border-gray-600 text-white' : 'bg-green-100 border-green-400 text-green-700'} px-4 py-3 rounded relative mt-4`}>{message}</div>}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <div>
+                <h2 className={`text-2xl font-bold mb-4 text-left ${theme === 'dark' ? 'text-white' : ''}`}>Last 5 Pushups</h2>
+                <table className={`w-full shadow-md rounded-md text-xs table-auto border-collapse ${theme === 'dark' ? 'bg-dark-card text-white' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'}`}>
+                  <thead>
+                    <tr>
+                      <th className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>Date</th>
+                      <th className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>Count</th>
+                      <th className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>Edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lastPushups.map((record) => (
+                      <tr key={record.id}>
+                        <td className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>{new Date(record.created_at).toLocaleDateString()}</td>
+                        <td className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>{record.count}</td>
+                        <td className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>
+                          <button onClick={() => handleEdit('pushup')} className="text-black hover:text-blue-800 p-1" style={{ padding: '2px', fontSize: '10px' }}>
+                            <i className="fa fa-edit" aria-hidden="true" style={{ fontSize: '10px' }}></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <h2 className={`text-2xl font-bold mb-4 text-left ${theme === 'dark' ? 'text-white' : ''}`}>Last 5 Wall Sits</h2>
+                <table className={`w-full shadow-md rounded-md text-xs table-auto border-collapse ${theme === 'dark' ? 'bg-dark-card text-white' : 'bg-white'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'}`}>
+                  <thead>
+                    <tr>
+                      <th className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>Date</th>
+                      <th className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>Duration (seconds)</th>
+                      <th className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>Edit</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {lastWallSits.map((record) => (
+                      <tr key={record.id}>
+                        <td className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>{new Date(record.created_at).toLocaleDateString()}</td>
+                        <td className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>{record.duration}</td>
+                        <td className={`p-1 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-400'} text-center`}>
+                          <button onClick={() => handleEdit('wall-sit')} className="text-black hover:text-blue-800 p-1" style={{ padding: '2px', fontSize: '10px' }}>
+                            <i className="fa fa-edit" aria-hidden="true" style={{ fontSize: '10px' }}></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <table className="w-full bg-white shadow-md rounded-md text-xs table-auto border-collapse border border-gray-400" style={{ width: '70%', fontSize: '12px', padding: '4px' }}>
-              <thead>
-                <tr>
-                  <th className="p-1 border border-gray-400 text-center">Date</th>
-                  <th className="p-1 border border-gray-400 text-center">Duration (seconds)</th>
-                  <th className="p-1 border border-gray-400 text-center">Edit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lastWallSits.map((record) => (
-                  <tr key={record.id}>
-                    <td className="p-1 border border-gray-400 text-center">{new Date(record.created_at).toLocaleDateString()}</td>
-                    <td className="p-1 border border-gray-400 text-center">{record.duration}</td>
-                    <td className="p-1 border border-gray-400 text-center">
-                      <button onClick={() => handleEdit('wall-sit')} className="text-blue-600 hover:text-blue-800 p-1" style={{ padding: '2px', fontSize: '10px' }}>
-                        <i className="fa fa-edit" aria-hidden="true" style={{ fontSize: '10px' }}></i>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         </div>
       ) : (
         <div className="text-center">
-          <h1 className="text-3xl font-bold mb-6">Please Log In</h1>
-          <p className="text-gray-600">You need to log in to record your exercises.</p>
-          <button
-            className="button w-full p-2 mt-4 rounded-md text-white bg-blue-600 hover:bg-blue-700"
-            onClick={() => router.push('/auth')}
-          >
-            Go to Login
+          <h1 className={`text-3xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : ''}`}>Please Log In</h1>
+          <p className={`text-gray-600 ${theme === 'dark' ? 'dark:text-gray-400' : ''}`}>You need to log in to record your exercises.</p>
+          <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex items-center justify-center">
+            Sign In
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google" className="w-6 h-6 ml-2" />
           </button>
-        </div>
+      </div>
       )}
 
       {modalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded shadow-lg w-96">
+          <div className={`p-6 rounded shadow-lg w-96 ${theme === 'dark' ? 'bg-dark-card text-white' : 'bg-white'}`}>
             <h2 className="text-2xl font-bold mb-4">Edit Last 5 {modalType === 'pushup' ? 'Pushups' : 'Wall Sits'}</h2>
             <form onSubmit={handleUpdate}>
               {modalRecords.map((record, index) => (
@@ -303,7 +309,7 @@ const Record: React.FC<Props> = () => {
                         updatedRecords[index].count = parseInt(e.target.value);
                         setModalRecords(updatedRecords);
                       }}
-                      className="w-full p-2 border border-gray-300 rounded-md text-xs"
+                      className={`w-full p-2 border rounded-md text-xs ${theme === 'dark' ? 'bg-dark-card border-gray-600' : 'border-gray-300'}`}
                       min="1"
                     />
                   ) : (
@@ -315,11 +321,11 @@ const Record: React.FC<Props> = () => {
                         updatedRecords[index].duration = parseInt(e.target.value);
                         setModalRecords(updatedRecords);
                       }}
-                      className="w-full p-2 border border-gray-300 rounded-md text-xs"
+                      className={`w-full p-2 border rounded-md text-xs ${theme === 'dark' ? 'bg-dark-card border-gray-600' : 'border-gray-300'}`}
                       min="1"
                     />
                   )}
-                  <button type="button" onClick={() => handleDelete(record.id)} className="text-red-600 hover:text-red-800 text-xs mt-1">Delete</button>
+                  <button type="button" onClick={() => handleDelete(record.id)} className="text-black hover:text-black text-xs mt-1">Delete</button>
                 </div>
               ))}
               <div className="flex justify-between mt-4">

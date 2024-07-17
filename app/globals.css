@@ -69,5 +69,16 @@ button:hover {
   margin-top: 20px;
   font-style: italic;
 }
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
 
-
+.bg-radial-fade {
+  background: radial-gradient(circle, transparent, black 70%);
+  mask-image: radial-gradient(circle at center, transparent, black 70%);
+  -webkit-mask-image: radial-gradient(circle at center, transparent, black 70%);
+}

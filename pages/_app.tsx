@@ -1,27 +1,29 @@
-import React from 'react';
-import { Provider as ReduxProvider } from 'react-redux'; 
-import { store } from '../store/store';
-import '../app/globals.css';
+import { useEffect } from 'react';
 import { AppProps } from 'next/app';
-import Layout from '../components/Layout';
 import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
+import Layout from '../components/Layout';
+import '../app/globals.css';
 
 function MyApp({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   return (
-    <ReduxProvider store={store}>
-      <ThemeProvider>
-        <AuthProvider> 
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
-        </AuthProvider>
-      </ThemeProvider>
-    </ReduxProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
 export default MyApp;
-

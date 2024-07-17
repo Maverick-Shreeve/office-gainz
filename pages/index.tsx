@@ -4,8 +4,23 @@ import Image from 'next/image';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600">
-      <div className="text-center">
+    <main className="relative flex min-h-screen flex-col items-center justify-center p-6 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="relative w-full h-full">
+          <Image 
+            src="/pushupBG.jpeg" 
+            alt="Background" 
+            fill
+            style={{ objectFit: 'cover' }} 
+            className="opacity-50"
+          />
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-radial-fade"></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 text-center">
         <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
           Fitness Tracker
         </h1>
@@ -14,7 +29,7 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="mt-12 flex space-x-6">
+      <div className="relative z-10 mt-12 flex space-x-6">
         <Link href="/record" legacyBehavior>
           <a className="transform transition duration-500 hover:scale-110">
             <button className="rounded-full bg-blue-600 py-3 px-6 text-lg font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800">
@@ -40,7 +55,7 @@ export default function Home() {
         </Link>
       </div>        
 
-      <footer className="absolute bottom-4 text-center text-white">
+      <footer className="relative z-10 mt-12 text-center text-white">
         <p>© 2024 Fitness Tracker. All rights reserved.</p>
       </footer>
     </main>
