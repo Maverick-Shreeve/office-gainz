@@ -22,6 +22,7 @@ interface UserWithResults {
 
 interface LeaderboardProps {
   initialData: UserWithResults[];
+  initialTimeFilter: string;
 }
 
 const extractNameFromFullName = (fullName: string): string => {
@@ -29,8 +30,9 @@ const extractNameFromFullName = (fullName: string): string => {
   return match ? match[1] : fullName;
 };
 
-const Leaderboard: React.FC<LeaderboardProps> = ({ initialData }) => {
+const Leaderboard: React.FC<LeaderboardProps> = ({ initialData, initialTimeFilter }) => {
   const [leaderboardData, setLeaderboardData] = useState<UserWithResults[]>(initialData);
+  const [timeFilter, setTimeFilter] = useState<string>(initialTimeFilter);
   const themeContext = useContext(ThemeContext);
 
   if (!themeContext) {
@@ -42,12 +44,39 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ initialData }) => {
     setLeaderboardData(initialData);
   }, [initialData]);
 
+  const handleFilterChange = async (filter: string) => {
+    setTimeFilter(filter);
+    const response = await fetch(`/api/leaderboard?filter=${filter}`);
+    const data = await response.json();
+    setLeaderboardData(data);
+  };
+
   return (
     <div className={`min-h-screen p-6 ${theme === 'dark' ? 'bg-dark-background text-white' : 'bg-white'}`}>
       <div className="container mx-auto mt-10 p-6 rounded shadow-lg">
         <h1 className={`text-3xl font-bold mb-6 text-center ${theme === 'dark' ? 'text-black' : 'text-gray-800'}`}>
           Exercise Leaderboard
         </h1>
+        <div className="flex justify-center mb-4">
+          <button
+            className={`px-4 py-2 mx-2 ${timeFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'} rounded`}
+            onClick={() => handleFilterChange('all')}
+          >
+            All Time
+          </button>
+          <button
+            className={`px-4 py-2 mx-2 ${timeFilter === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'} rounded`}
+            onClick={() => handleFilterChange('week')}
+          >
+            Past 7 Days
+          </button>
+          <button
+            className={`px-4 py-2 mx-2 ${timeFilter === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'} rounded`}
+            onClick={() => handleFilterChange('month')}
+          >
+            Past Month
+          </button>
+        </div>
         <p className={`text-center mb-4 ${theme === 'dark' ? 'text-black' : 'text-gray-600'}`}>
           Ranked by total pushups. The user with the most pushups is at the top.
         </p>
@@ -83,26 +112,38 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ initialData }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!supabaseAdmin) {
     console.error('Supabase admin client is not initialized.');
-    return { props: { initialData: [] } };
+    return { props: { initialData: [], initialTimeFilter: 'all' } };
+  }
+
+  const { filter = 'all' } = context.query;
+  let startDate: string | undefined;
+
+  if (filter === 'week') {
+    startDate = moment().subtract(7, 'days').toISOString();
+  } else if (filter === 'month') {
+    startDate = moment().subtract(1, 'month').toISOString();
   }
 
   try {
-    const { data: exerciseData, error: exerciseError } = await supabaseAdmin
-      .from('exercises')
-      .select('*');
+    let query = supabaseAdmin.from('exercises').select('*');
+    if (startDate) {
+      query = query.gte('created_at', startDate);
+    }
+
+    const { data: exerciseData, error: exerciseError } = await query;
 
     if (exerciseError) {
       console.error('Error fetching exercises:', exerciseError);
-      return { props: { initialData: [] } };
+      return { props: { initialData: [], initialTimeFilter: filter } };
     }
 
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.listUsers();
     if (userError) {
       console.error('Error fetching user profiles:', userError);
-      return { props: { initialData: [] } };
+      return { props: { initialData: [], initialTimeFilter: filter } };
     }
 
     const userResults: Record<string, UserWithResults> = {};
@@ -128,10 +169,10 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
     const leaderboardArray = Object.values(userResults).sort((a, b) => b.total_reps - a.total_reps);
 
-    return { props: { initialData: leaderboardArray } };
+    return { props: { initialData: leaderboardArray, initialTimeFilter: filter } };
   } catch (error) {
     console.error('Unexpected error:', error);
-    return { props: { initialData: [] } };
+    return { props: { initialData: [], initialTimeFilter: 'all' } };
   }
 };
 

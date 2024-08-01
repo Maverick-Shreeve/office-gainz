@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center p-6 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600">
+    <main className="relative flex min-h-screen flex-col items-center justify-center p-6 ">
       <div className="absolute inset-0 overflow-hidden">
         <div className="relative w-full h-full">
           <Image 
@@ -12,7 +12,7 @@ export default function Home() {
             alt="Background" 
             fill
             style={{ objectFit: 'cover' }} 
-            className="opacity-50"
+            className="opacity-80"
           />
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute inset-0 bg-radial-fade"></div>
@@ -21,10 +21,10 @@ export default function Home() {
       </div>
 
       <div className="relative z-10 text-center">
-        <h1 className="text-5xl font-extrabold text-white drop-shadow-lg">
+        <h1 className="text-5xl font-extrabold text-white">
           Fitness Tracker
         </h1>
-        <p className="mt-4 text-2xl text-white shadow-lg">
+        <p className="mt-4 text-3xl text-white ">
           Keep track of your exercise routine and compete with friends!
         </p>
       </div>
@@ -55,9 +55,6 @@ export default function Home() {
         </Link>
       </div>        
 
-      <footer className="relative z-10 mt-12 text-center text-white">
-        <p>© 2024 Fitness Tracker. All rights reserved.</p>
-      </footer>
     </main>
   );
 }

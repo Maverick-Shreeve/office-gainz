@@ -3,14 +3,16 @@ import { useRouter } from 'next/router';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabaseClient';
 import { ThemeContext } from '../context/ThemeContext';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface Props {}
 
 interface ExerciseRecord {
   id: number;
   type: string;
-  count: number;
-  duration: number;
+  count?: number;
+  duration?: number;
   created_at: string;
 }
 
@@ -34,17 +36,20 @@ const Record: React.FC<Props> = () => {
 
   useEffect(() => {
     const fetchSession = async () => {
+      console.log("Fetching session...");
       const { data, error } = await supabase.auth.getSession();
       if (error) {
         console.error("Error fetching session:", error);
         return;
       }
+      console.log("Session data:", data);
       setUser(data.session?.user ?? null);
     };
 
     fetchSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", session);
       setUser(session?.user ?? null);
     });
 
@@ -57,12 +62,14 @@ const Record: React.FC<Props> = () => {
 
   useEffect(() => {
     if (user) {
+      console.log("User logged in, fetching exercises...");
       fetchLastExercises('pushup', setLastPushups);
       fetchLastExercises('wall-sit', setLastWallSits);
     }
   }, [user]);
 
   const fetchLastExercises = async (type: string, setState: React.Dispatch<React.SetStateAction<ExerciseRecord[]>>) => {
+    console.log(`Fetching last exercises of type ${type}...`);
     const { data, error } = await supabase
       .from('exercises')
       .select('*')
@@ -74,6 +81,7 @@ const Record: React.FC<Props> = () => {
     if (error) {
       console.error(`Error fetching ${type} exercises:`, error);
     } else {
+      console.log(`Fetched ${type} exercises:`, data);
       setState(data);
     }
   };
@@ -86,22 +94,25 @@ const Record: React.FC<Props> = () => {
     if (!user) {
       setMessage('No user logged in.');
       return;
-    } else if (pushupValue <= 0) {
+    } else if (pushupValue <= 0 || isNaN(pushupValue)) {
       setMessage('Please enter a positive number of pushups.');
       return;
     }
 
     try {
+      console.log("Inserting pushup record...");
       const response = await supabase
         .from('exercises')
         .insert([{ type: 'pushup', count: pushupValue, user_id: user.id }]);
 
       if (response.error) throw response.error;
 
+      console.log("Pushup record inserted:", response);
       setMessage('Pushup record saved successfully!');
       setPushupCount('');
       fetchLastExercises('pushup', setLastPushups);
     } catch (error: any) {
+      console.error("Error inserting pushup record:", error);
       setMessage(error.message || 'An unknown error occurred.');
     }
   };
@@ -118,22 +129,25 @@ const Record: React.FC<Props> = () => {
     if (!user) {
       setMessage('No user logged in.');
       return;
-    } else if (wallSitValue <= 0) {
+    } else if (wallSitValue <= 0 || isNaN(wallSitValue)) {
       setMessage('Please enter a positive duration for the wall sit.');
       return;
     }
 
     try {
+      console.log("Inserting wall sit record...");
       const response = await supabase
         .from('exercises')
         .insert([{ type: 'wall-sit', duration: wallSitValue, count: 1, user_id: user.id }]);
 
       if (response.error) throw response.error;
 
+      console.log("Wall sit record inserted:", response);
       setMessage('Wall sit recorded successfully!');
       setWallSitDuration('');
       fetchLastExercises('wall-sit', setLastWallSits);
     } catch (error: any) {
+      console.error("Error inserting wall sit record:", error);
       setMessage(error.message || 'An unknown error occurred.');
     }
   };
@@ -143,12 +157,14 @@ const Record: React.FC<Props> = () => {
   };
 
   const handleEdit = (type: string) => {
+    console.log(`Editing ${type} records...`);
     setModalType(type);
     setModalRecords(type === 'pushup' ? lastPushups : lastWallSits);
     setModalOpen(true);
   };
 
   const handleDelete = async (id: number) => {
+    console.log(`Deleting record with id ${id}...`);
     try {
       const { error } = await supabase
         .from('exercises')
@@ -157,34 +173,46 @@ const Record: React.FC<Props> = () => {
 
       if (error) throw error;
 
+      console.log("Record deleted successfully.");
       setMessage('Record deleted successfully!');
-      setModalOpen(false);
+      setModalRecords(modalRecords.filter(record => record.id !== id));
       fetchLastExercises(modalType, modalType === 'pushup' ? setLastPushups : setLastWallSits);
     } catch (error: any) {
+      console.error("Error deleting record:", error);
       setMessage(error.message || 'An unknown error occurred.');
     }
   };
 
-  const handleUpdate = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
+  const handleUpdate = async (record: ExerciseRecord) => {
+    console.log(`Updating record with id ${record.id}...`);
     try {
-      for (const record of modalRecords) {
-        const { error } = await supabase
-          .from('exercises')
-          .update({
-            count: record.type === 'pushup' ? record.count : undefined,
-            duration: record.type === 'wall-sit' ? record.duration : undefined
-          })
-          .eq('id', record.id);
-
-        if (error) throw error;
+      const updatedValue = modalType === 'pushup' ? record.count : record.duration;
+      if (updatedValue === undefined || updatedValue <= 0) {
+        setMessage('Please enter valid positive values.');
+        return;
       }
 
-      setMessage('Records updated successfully!');
-      setModalOpen(false);
-      fetchLastExercises(modalType, modalType === 'pushup' ? setLastPushups : setLastWallSits);
+      const { data, error } = await supabase
+        .from('exercises')
+        .update({
+          count: record.type === 'pushup' ? updatedValue : undefined,
+          duration: record.type === 'wall-sit' ? updatedValue : undefined
+        })
+        .eq('id', record.id)
+        .select();
+
+      if (error) throw error;
+
+      console.log("Record updated:", data);
+      if (data.length > 0) {
+        setMessage('Record updated successfully!');
+        setModalRecords(modalRecords.map(r => (r.id === record.id ? { ...r, count: updatedValue, duration: updatedValue } : r)));
+        fetchLastExercises(modalType, modalType === 'pushup' ? setLastPushups : setLastWallSits);
+      } else {
+        setMessage('No record was updated.');
+      }
     } catch (error: any) {
+      console.error("Error updating record:", error);
       setMessage(error.message || 'An unknown error occurred.');
     }
   };
@@ -282,58 +310,70 @@ const Record: React.FC<Props> = () => {
           </div>
         </div>
       ) : (
-        <div className="text-center">
+        <div className="flex flex-col items-center text-center">
           <h1 className={`text-3xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : ''}`}>Please Log In</h1>
           <p className={`text-gray-600 ${theme === 'dark' ? 'dark:text-gray-400' : ''}`}>You need to log in to record your exercises.</p>
-          <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex items-center justify-center">
-            Sign In
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google" className="w-6 h-6 ml-2" />
-          </button>
-      </div>
+          <div className="flex justify-center mt-4">
+            <Image
+              src="/exerciseExample.jpeg"
+              alt="Exercise Example"
+              width={900}
+              height={700}
+              className="rounded shadow-md"
+            />
+          </div>
+          <p className="mt-4">This is an example of how the page will look once you have logged in and recorded exercises.</p>
+          <Link href="/auth">
+            <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 flex items-center justify-center mt-4">
+              Sign In
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/2048px-Google_%22G%22_logo.svg.png" alt="Google" className="w-6 h-6 ml-2" />
+            </button>
+          </Link>
+        </div>
       )}
 
       {modalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className={`p-6 rounded shadow-lg w-96 ${theme === 'dark' ? 'bg-dark-card text-white' : 'bg-white'}`}>
-            <h2 className="text-2xl font-bold mb-4">Edit Last 5 {modalType === 'pushup' ? 'Pushups' : 'Wall Sits'}</h2>
-            <form onSubmit={handleUpdate}>
+          <div className={`p-3 rounded shadow-lg w-80 ${theme === 'dark' ? 'bg-dark-card text-white' : 'bg-white'}`}>
+            <h2 className="text-lg font-bold mb-3">Edit Last 5 {modalType === 'pushup' ? 'Pushups' : 'Wall Sits'}</h2>
+            <form>
               {modalRecords.map((record, index) => (
-                <div key={record.id} className="mb-3">
-                  <label className="block mb-1 font-bold">Record {index + 1}:</label>
+                <div key={record.id} className="mb-2">
+                  <label className="block mb-1 text-sm font-bold">Record {index + 1}:</label>
                   {modalType === 'pushup' ? (
                     <input
                       type="number"
-                      value={record.count}
+                      value={record.count ?? ''}
                       onChange={(e) => {
                         const updatedRecords = [...modalRecords];
-                        updatedRecords[index].count = parseInt(e.target.value);
+                        updatedRecords[index] = { ...updatedRecords[index], count: parseInt(e.target.value) || 0 };
                         setModalRecords(updatedRecords);
                       }}
-                      className={`w-full p-2 border rounded-md text-xs ${theme === 'dark' ? 'bg-dark-card border-gray-600' : 'border-gray-300'}`}
+                      className={`w-full p-1 border rounded-md text-xs ${theme === 'dark' ? 'bg-dark-card border-gray-600' : 'border-gray-300'}`}
                       min="1"
                     />
                   ) : (
                     <input
                       type="number"
-                      value={record.duration}
+                      value={record.duration ?? ''}
                       onChange={(e) => {
                         const updatedRecords = [...modalRecords];
-                        updatedRecords[index].duration = parseInt(e.target.value);
+                        updatedRecords[index] = { ...updatedRecords[index], duration: parseInt(e.target.value) || 0 };
                         setModalRecords(updatedRecords);
                       }}
-                      className={`w-full p-2 border rounded-md text-xs ${theme === 'dark' ? 'bg-dark-card border-gray-600' : 'border-gray-300'}`}
+                      className={`w-full p-1 border rounded-md text-xs ${theme === 'dark' ? 'bg-dark-card border-gray-600' : 'border-gray-300'}`}
                       min="1"
                     />
                   )}
-                  <button type="button" onClick={() => handleDelete(record.id)} className="text-black hover:text-black text-xs mt-1">Delete</button>
+                  <div className="flex justify-between mt-1">
+                    <button type="button" onClick={() => handleDelete(record.id)} className="text-xs text-black hover:text-red-500">Delete</button>
+                    <button type="button" onClick={() => handleUpdate(record)} className="text-xs text-black hover:text-blue-500">Update</button>
+                  </div>
                 </div>
               ))}
-              <div className="flex justify-between mt-4">
-                <button type="submit" className="button p-2 rounded-md text-white bg-blue-600 hover:bg-blue-700 text-xs">
-                  Update
-                </button>
-                <button type="button" onClick={() => setModalOpen(false)} className="button p-2 rounded-md text-white bg-gray-600 hover:bg-gray-700 text-xs">
-                  Cancel
+              <div className="flex justify-between mt-2">
+                <button type="button" onClick={() => setModalOpen(false)} className="button p-1 rounded-md text-white bg-gray-600 hover:bg-gray-700 text-xs">
+                  Close
                 </button>
               </div>
             </form>

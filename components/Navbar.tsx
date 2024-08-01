@@ -55,13 +55,14 @@ const Navbar = () => {
       <div className="container flex flex-wrap justify-between items-center mx-auto dark:bg-dark-card">
         <Link href="/" passHref>
           <div className="flex items-center cursor-pointer dark:bg-dark-card p-2 rounded">
-            <div className="overflow-hidden h-12 sm:h-14 w-12 sm:w-14 rounded-full">
-              <img
-                src="/office-gainzlogo.jpg"
-                alt="Office Gainz Logo"
-                className="object-cover object-center h-full w-full"
-              />
-            </div>
+           <div className="overflow-hidden h-12 sm:h-14 w-12 sm:w-14 rounded-full">
+  <img
+    src="/office-gainzlogo.jpg"
+    alt="Office Gainz Logo"
+    className="object-cover object-center h-full w-full transform scale-1.5"
+  />
+</div>
+
             <span className="ml-3 self-center text-xl font-semibold whitespace-nowrap dark:text-dark-text">
               Office Gainz
             </span>

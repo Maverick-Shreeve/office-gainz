@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Define your color palette for dark mode here
+
         dark: {
           background: '#1F2937', 
           text: '#F9FAFB',       

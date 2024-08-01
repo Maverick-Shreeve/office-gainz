@@ -53,7 +53,7 @@ export default function AuthPage() {
         <title>Sign In</title>
       </Head>
 
-      <div className="relative flex min-h-screen flex-col items-center justify-center p-6 bg-gradient-to-r from-green-400 via-blue-500 to-purple-600">
+      <div className="relative flex min-h-screen flex-col items-center justify-center p-6 ">
         <div className="absolute inset-0 overflow-hidden">
           <div className="relative w-full h-full">
             <Image 
@@ -61,7 +61,7 @@ export default function AuthPage() {
               alt="Background" 
               fill
               style={{ objectFit: 'cover' }} 
-              className="opacity-50"
+              className="opacity-80"
             />
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute inset-0 bg-radial-fade"></div>

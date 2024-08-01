@@ -14,7 +14,7 @@ export default async function handler(req, res) {
         throw error;
       }
 
-      // User successfully created
+      // user successfully created
       return res.status(201).json({ data });
     } catch (error) {
       if (error.message.includes("exists")) {

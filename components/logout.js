@@ -4,7 +4,7 @@ import { supabase } from "../../utils/supabaseClient";
 export default function LogoutButton() {
   const handleLogout = async () => {
     await logout();
-    // Redirect to home page or login page
+    // Redirect to home page
     window.location.href = "/";
   };
 
