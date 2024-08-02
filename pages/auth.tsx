@@ -24,7 +24,11 @@ export default function AuthPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: process.env.NEXT_PUBLIC_REDIRECT_URL
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',  // Requests a refresh token
+            prompt: 'consent'        // Forces the consent screen to show
+          }
         }
       });
 
@@ -44,7 +48,7 @@ export default function AuthPage() {
         <title>Sign In</title>
       </Head>
 
-      <div className="relative flex min-h-screen flex-col items-center justify-center p-6 ">
+      <div className="relative flex min-h-screen flex-col items-center justify-center p-6">
         <div className="absolute inset-0 overflow-hidden">
           <div className="relative w-full h-full">
             <Image 
