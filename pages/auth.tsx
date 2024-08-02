@@ -24,26 +24,17 @@ export default function AuthPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          queryParams: {
-            access_type: 'offline',  // Requests a refresh token
-            prompt: 'consent'        // Forces the consent screen to show
-          }
+          redirectTo: `${window.location.origin}/auth/callback`
         }
       });
 
       if (error) {
-        const typedError = error as { message?: string, error_description?: string };
-        console.error("Google auth error:", typedError.message);
-        setErrorMessage(typedError.message || "An unknown error occurred");
+        console.error("Google auth error:", error.message);
+        setErrorMessage(error.message || "An unknown error occurred");
       }
     } catch (error: any) {
       console.error("Unexpected error during Google auth:", error);
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        const typedError = error as { error_description?: string, message?: string };
-        setErrorMessage(typedError.error_description || typedError.message || "An unknown error occurred");
-      }
+      setErrorMessage(error.message || "An unknown error occurred");
     }
   };
 
