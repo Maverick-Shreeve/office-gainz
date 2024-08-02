@@ -60,7 +60,6 @@ export default function AuthPage() {
           </div>
         </div>
 
-        {/* Content container */}
         <div className="relative z-10 text-center p-8 bg-white bg-opacity-90 rounded shadow-lg w-full max-w-md">
           <h1 className="text-4xl font-bold mb-6">Sign In</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md">
