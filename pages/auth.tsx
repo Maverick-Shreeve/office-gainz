@@ -31,6 +31,8 @@ export default function AuthPage() {
           }
         }
       });
+      console.log("Redirecting to:", `${window.location.origin}/auth/callback`);
+
 
       if (error) {
         console.error("Google auth error:", error.message);
