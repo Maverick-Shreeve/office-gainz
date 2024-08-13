@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 
 const Callback = () => {
   const router = useRouter();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -20,17 +21,11 @@ const Callback = () => {
         return;
       }
 
-      console.log("ID Token:", idToken);
-      console.log("Refresh Token:", refreshToken);
-
-      // Store tokens in localStorage or sessionStorage
+      // Store tokens in local
       localStorage.setItem("id_token", idToken);
       localStorage.setItem("refresh_token", refreshToken);
-
-      console.log("Tokens stored successfully.");
-
       // Redirect to the desired page
-      router.replace("/"); // Adjust this path as necessary
+      router.replace(`${baseUrl}/`);
     };
 
     if (router.isReady) {
