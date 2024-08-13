@@ -3,11 +3,15 @@ import { useRouter } from "next/router";
 
 const Callback = () => {
   const router = useRouter();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+  // env var doesnt want to load
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "https://office-gainz.vercel.app";
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       console.log("Callback page loaded");
+      console.log("Base URL:", baseUrl);
 
       // Parse the hash fragment to get the tokens
       const hash = window.location.hash.substring(1);
@@ -24,7 +28,7 @@ const Callback = () => {
       // Store tokens in local
       localStorage.setItem("id_token", idToken);
       localStorage.setItem("refresh_token", refreshToken);
-      // Redirect to the desired page
+
       router.replace(`${baseUrl}/`);
     };
 
