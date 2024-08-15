@@ -39,8 +39,8 @@ const Navbar = () => {
       }
 
       console.log("Logged out successfully.");
-      setIsLoggedIn(false);
-      router.push("/");
+      setIsLoggedIn(false); 
+      router.push("/"); 
     } catch (error) {
       if (error instanceof Error) {
         console.error("Logout failed:", error.message);
@@ -55,14 +55,13 @@ const Navbar = () => {
       <div className="container flex flex-wrap justify-between items-center mx-auto dark:bg-dark-card">
         <Link href="/" passHref>
           <div className="flex items-center cursor-pointer dark:bg-dark-card p-2 rounded">
-           <div className="overflow-hidden h-12 sm:h-14 w-12 sm:w-14 rounded-full">
-  <img
-    src="/office-gainzlogo.jpg"
-    alt="Office Gainz Logo"
-    className="object-cover object-center h-full w-full transform scale-1.5"
-  />
-</div>
-
+            <div className="overflow-hidden h-12 sm:h-14 w-12 sm:w-14 rounded-full">
+              <img
+                src="/office-gainzlogo.jpg"
+                alt="Office Gainz Logo"
+                className="object-cover object-center h-full w-full transform scale-1.5"
+              />
+            </div>
             <span className="ml-3 self-center text-xl font-semibold whitespace-nowrap dark:text-dark-text">
               Office Gainz
             </span>
@@ -70,7 +69,10 @@ const Navbar = () => {
         </Link>
         <div className="flex md:order-2">
           {isLoggedIn ? (
-            <button onClick={handleLogout} className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 mr-3 md:mr-0">
+            <button
+              onClick={handleLogout}
+              className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 mr-3 md:mr-0"
+            >
               Logout
             </button>
           ) : (
