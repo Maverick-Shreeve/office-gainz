@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { AppProps } from 'next/app';
+import Head from 'next/head'; // Import Head from next/head
 import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
 import Layout from '../components/Layout';
@@ -19,6 +20,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     <ThemeProvider>
       <AuthProvider>
         <Layout>
+          <Head>
+            {/* Google site verification meta tag here */}
+            <meta name="google-site-verification" content="hJI_1hGI3FwrcQuqJ8KsdZZ8Hf_xmNzfhQavkoYppac" />
+          </Head>
           <Component {...pageProps} />
         </Layout>
       </AuthProvider>
