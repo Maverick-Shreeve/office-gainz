@@ -22,8 +22,14 @@ const Navbar = () => {
   }, [theme]);
 
   useEffect(() => {
+    const checkAuthState = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+    };
+    checkAuthState();
+
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session?.user);
+      setIsLoggedIn(!!session);
     });
 
     return () => {
