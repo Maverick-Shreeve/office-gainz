@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { useAuth } from "../../context/AuthContext";
 
 const Callback = () => {
   const router = useRouter();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const { setIsLoggedIn } = useAuth(); //setIsLoggedIn function from context
 
   useEffect(() => {
     const handleAuthCallback = async () => {
@@ -13,25 +14,26 @@ const Callback = () => {
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
 
-      const idToken = params.get("access_token");
+      const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
 
-      if (!idToken || !refreshToken) {
+      if (!accessToken || !refreshToken) {
         console.error("Authorization tokens not found");
         return;
       }
 
-      // Store tokens in local
-      localStorage.setItem("id_token", idToken);
+      localStorage.setItem("access_token", accessToken);
       localStorage.setItem("refresh_token", refreshToken);
-      // Redirect to the desired page
-      router.replace(`${baseUrl}/`);
+      // Update the global auth state
+      setIsLoggedIn(true);
+
+      router.replace(`/`);
     };
 
     if (router.isReady) {
       handleAuthCallback();
     }
-  }, [router.isReady]);
+  }, [router.isReady, setIsLoggedIn]);
 
   return <p>Loading...</p>;
 };

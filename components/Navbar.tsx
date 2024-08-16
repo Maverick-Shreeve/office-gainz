@@ -10,7 +10,7 @@ import { supabase } from '../utils/supabaseClient';
 const Navbar = () => {
   const router = useRouter();
   const themeContext = useContext(ThemeContext);
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { isLoggedIn, setIsLoggedIn } = useAuth(); 
 
   if (!themeContext) {
     throw new Error('useTheme must be used within a ThemeProvider');
@@ -21,6 +21,7 @@ const Navbar = () => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
+  // Sync auth state with Supabase session 
   useEffect(() => {
     const checkAuthState = async () => {
       const { data: { session } } = await supabase.auth.getSession();

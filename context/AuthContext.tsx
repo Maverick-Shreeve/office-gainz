@@ -1,69 +1,22 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '../utils/supabaseClient';
-
-interface User {
-  id: string;
-  email: string | undefined;  // allow to be undefined so it matches with supabase
-}
+import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction, ReactNode } from 'react';
 
 interface AuthContextType {
-  user: User | null;
   isLoggedIn: boolean;
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  
-
- useEffect(() => {
-  async function fetchUser() {
-    try {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        console.error('Error fetching user:', error);
-        return;
-      }
-
-      if (data.user) {
-        const safeUser: User = {
-          id: data.user.id,
-          email: data.user.email || '' 
-        };
-        setUser(safeUser);
-        setIsLoggedIn(true);
-      } else {
-        setUser(null);
-        setIsLoggedIn(false);
-      }
-    } catch (error) {
-      console.error('Failed to fetch user:', error);
-      setUser(null);
-      setIsLoggedIn(false);
-    }
-  }
-
-  fetchUser();
-
-  const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-    await fetchUser();
-  });
-
-  return () => {
-    authListener.subscription.unsubscribe();
-  };
-}, []);
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    setIsLoggedIn(!!token); // Set initial login state 
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, setIsLoggedIn }}>
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
       {children}
     </AuthContext.Provider>
   );
