@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { AppProps } from 'next/app';
-import Head from 'next/head'; // Import Head from next/head
+import Head from 'next/head'; 
 import { ThemeProvider } from '../context/ThemeContext';
 import { AuthProvider } from '../context/AuthContext';
+import { ViewportProvider } from '../context/ViewportContext';
 import Layout from '../components/Layout';
 import '../app/globals.css';
 
@@ -17,17 +18,19 @@ function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Layout>
-          <Head>
-            {/* Google site verification meta tag here */}
-            <meta name="google-site-verification" content="hJI_1hGI3FwrcQuqJ8KsdZZ8Hf_xmNzfhQavkoYppac" />
-          </Head>
-          <Component {...pageProps} />
-        </Layout>
-      </AuthProvider>
-    </ThemeProvider>
+    <ViewportProvider> 
+      <ThemeProvider>
+        <AuthProvider>
+          <Layout>
+            <Head>
+              {/* Google site verification meta tag */}
+              <meta name="google-site-verification" content="hJI_1hGI3FwrcQuqJ8KsdZZ8Hf_xmNzfhQavkoYppac" />
+            </Head>
+            <Component {...pageProps} />
+          </Layout>
+        </AuthProvider>
+      </ThemeProvider>
+    </ViewportProvider>
   );
 }
 

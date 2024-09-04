@@ -16,11 +16,30 @@
   }
 }
 
+html,
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  margin: 0;
-  padding: 20px;
+  overflow-x: auto; /* Allows horizontal scrolling */
+  overflow-y: auto; /* Allows vertical scrolling */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  overscroll-behavior: contain; /* Prevents over-scrolling behavior on mobile */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.main-container {
+  overflow-x: auto; /* Allows horizontal scrolling */
+  overflow-y: auto; /* Allows vertical scrolling */
+  max-width: 100vw; /* Prevents content from overflowing the viewport width */
+  max-height: 100vh; /* Prevents content from overflowing the viewport height */
+}
+
+.container-fluid {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .container {
@@ -68,13 +87,6 @@ button:hover {
 .message {
   margin-top: 20px;
   font-style: italic;
-}
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
 }
 
 .bg-radial-fade {
