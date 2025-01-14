@@ -1,4 +1,4 @@
-https://office-gainz-b4k6pehmk-maverickshreeves-projects.vercel.app/
+https://office-gainz.vercel.app/
 
 ## Getting Started
 
